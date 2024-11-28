@@ -1,0 +1,13 @@
+syntax = "proto3";
+package models;
+
+option go_package = "protocols/user";
+
+// Shop is
+message User {
+    bytes       user_uuid             = 1;
+    string      username         = 2;
+    string      email           =7;
+}
+
+
