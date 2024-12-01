@@ -64,7 +64,9 @@ func (api *UsersAPI) CheckAuth(token []byte) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), api.timeout)
 	defer cancel()
 	fmt.Printf("\n %s token \n", token)
-	resp, err := api.UserServiceClient.CheckAuth(ctx, &proto.TokenRequest{Token: token})
+	protoToken := &proto.TokenRequest{Token: token}
+	fmt.Printf("prototoken is %v \n", protoToken)
+	resp, err := api.UserServiceClient.CheckAuth(ctx, protoToken)
 	if err != nil {
 		return nil, fmt.Errorf("checkAuth api request: %w", err)
 	}
