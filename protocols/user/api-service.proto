@@ -21,13 +21,15 @@ service UserService {
 message SignUpRequest {
     string  email       = 1;
     bytes   password    = 2;
-    bool    is_employer    = 3;
+    int64    user_type    = 3;
 }
 
 // SignInRequest is
 message SignInRequest {
     string  email       = 1;
     bytes   password    = 2;
+    int64    user_type    = 3;
+
 }
 message UserEmpty {}
 

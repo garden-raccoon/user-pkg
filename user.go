@@ -16,13 +16,13 @@ const timeOut = 60
 
 type IUserAPI interface {
 	// SignUp is
-	SignUp(email string, password []byte, isEmployer bool) ([]byte, error)
+	SignUp(email string, password []byte, userType int) ([]byte, error)
 
 	// CheckAuth is
 	CheckAuth(token []byte) (*models.User, error)
 
 	// SignIn is
-	SignIn(email string, password []byte) ([]byte, error)
+	SignIn(email string, password []byte, userType int) ([]byte, error)
 
 	// Close GRPC Api connection
 	Close() error
@@ -75,14 +75,14 @@ func (api *UsersAPI) CheckAuth(token []byte) (*models.User, error) {
 }
 
 // SignUp is
-func (api *UsersAPI) SignUp(email string, password []byte, isEmployer bool) ([]byte, error) {
+func (api *UsersAPI) SignUp(email string, password []byte, userType int) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), api.timeout)
 	defer cancel()
 
 	opts := &proto.SignUpRequest{
-		Email:      email,
-		Password:   password,
-		IsEmployer: isEmployer,
+		Email:    email,
+		Password: password,
+		UserType: int64(userType),
 	}
 	fmt.Printf("epts email is %s\n", opts.Email)
 	resp, err := api.UserServiceClient.SignUp(ctx, opts)
@@ -93,13 +93,14 @@ func (api *UsersAPI) SignUp(email string, password []byte, isEmployer bool) ([]b
 }
 
 // SignIn is
-func (api *UsersAPI) SignIn(email string, password []byte) ([]byte, error) {
+func (api *UsersAPI) SignIn(email string, password []byte, userType int) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), api.timeout)
 	defer cancel()
 
 	opts := &proto.SignInRequest{
 		Email:    email,
 		Password: password,
+		UserType: int64(userType),
 	}
 
 	resp, err := api.UserServiceClient.SignIn(ctx, opts)
