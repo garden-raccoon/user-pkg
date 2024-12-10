@@ -22,7 +22,7 @@ type IUserAPI interface {
 	CheckAuth(token []byte) (*models.User, error)
 
 	// SignIn is
-	SignIn(email string, password []byte, userType int) ([]byte, error)
+	SignIn(email string, password []byte) ([]byte, error)
 
 	// Close GRPC Api connection
 	Close() error
@@ -93,14 +93,13 @@ func (api *UsersAPI) SignUp(email string, password []byte, userType int) ([]byte
 }
 
 // SignIn is
-func (api *UsersAPI) SignIn(email string, password []byte, userType int) ([]byte, error) {
+func (api *UsersAPI) SignIn(email string, password []byte) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), api.timeout)
 	defer cancel()
 
 	opts := &proto.SignInRequest{
 		Email:    email,
 		Password: password,
-		UserType: int64(userType),
 	}
 
 	resp, err := api.UserServiceClient.SignIn(ctx, opts)
