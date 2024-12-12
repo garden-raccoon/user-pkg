@@ -50,11 +50,12 @@ func New(addr string) (IUserAPI, error) {
 	if err := api.initConn(addr); err != nil {
 		return nil, fmt.Errorf("create Users UsersAPI:  %w", err)
 	}
-
 	api.HealthClient = grpc_health_v1.NewHealthClient(api.ClientConn)
-	fmt.Println(api.HealthClient)
+	err := api.HealthCheck()
+	if err != nil {
+		return nil, fmt.Errorf("healthcheck failed %w", err)
+	}
 	api.UserServiceClient = proto.NewUserServiceClient(api.ClientConn)
-	fmt.Println(api.UserServiceClient)
 	return api, nil
 }
 
@@ -137,7 +138,7 @@ func (api *UsersAPI) HealthCheck() error {
 	if resp.Status != grpc_health_v1.HealthCheckResponse_SERVING {
 		return fmt.Errorf("node is %s", errors.New("service is unhealthy"))
 	}
-
+	fmt.Println("HEALTHY")
 	//api.status = service.StatusHealthy
 	return nil
 }
