@@ -66,7 +66,7 @@ func (api *UsersAPI) initConn(addr string) (err error) {
 		PermitWithoutStream: true,             // send pings even without active streams
 	}
 
-	api.ClientConn, err = grpc.NewClient(api.addr, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithKeepaliveParams(kacp))
+	api.ClientConn, err = grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithKeepaliveParams(kacp))
 	if err != nil {
 		return fmt.Errorf("failed to dial: %w", err)
 	}
