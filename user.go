@@ -52,7 +52,9 @@ func New(addr string) (IUserAPI, error) {
 	}
 
 	api.HealthClient = grpc_health_v1.NewHealthClient(api.ClientConn)
+	fmt.Println(api.HealthClient)
 	api.UserServiceClient = proto.NewUserServiceClient(api.ClientConn)
+	fmt.Println(api.UserServiceClient)
 	return api, nil
 }
 
