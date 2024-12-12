@@ -2,8 +2,12 @@ package user
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/garden-raccoon/user-pkg/models"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/health/grpc_health_v1"
+	"sync"
 	"time"
 
 	proto "github.com/garden-raccoon/user-pkg/protocols/user"
@@ -33,8 +37,10 @@ type IUserAPI interface {
 type UsersAPI struct {
 	addr    string
 	timeout time.Duration
+	mu      sync.Mutex
 	*grpc.ClientConn
 	proto.UserServiceClient
+	grpc_health_v1.HealthClient
 }
 
 // New create new Users IEmployerAPI instance
@@ -45,6 +51,7 @@ func New(addr string) (IUserAPI, error) {
 		return nil, fmt.Errorf("create Users UsersAPI:  %w", err)
 	}
 
+	api.HealthClient = grpc_health_v1.NewHealthClient(api.ClientConn)
 	api.UserServiceClient = proto.NewUserServiceClient(api.ClientConn)
 	return api, nil
 }
@@ -57,7 +64,7 @@ func (api *UsersAPI) initConn(addr string) (err error) {
 		PermitWithoutStream: true,             // send pings even without active streams
 	}
 
-	api.ClientConn, err = grpc.Dial(addr, grpc.WithInsecure(), grpc.WithKeepaliveParams(kacp))
+	api.ClientConn, err = grpc.Dial(api.addr, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithKeepaliveParams(kacp))
 	return
 }
 func (api *UsersAPI) CheckAuth(token []byte) (*models.User, error) {
@@ -108,4 +115,24 @@ func (api *UsersAPI) SignIn(email string, password []byte) ([]byte, error) {
 	}
 
 	return resp.Token, nil
+}
+
+func (api *UsersAPI) HealthCheck() error {
+	ctx, cancel := context.WithTimeout(context.Background(), api.timeout)
+	defer cancel()
+
+	api.mu.Lock()
+	defer api.mu.Unlock()
+
+	resp, err := api.HealthClient.Check(ctx, &grpc_health_v1.HealthCheckRequest{Service: "publicrate"})
+	if err != nil {
+		return fmt.Errorf("healthcheck error: %w", err)
+	}
+
+	if resp.Status != grpc_health_v1.HealthCheckResponse_SERVING {
+		return fmt.Errorf("node is %s", errors.New("service is unhealthy"))
+	}
+
+	//api.status = service.StatusHealthy
+	return nil
 }
