@@ -53,10 +53,7 @@ func New(addr string) (IUserAPI, error) {
 		return nil, fmt.Errorf("create Users UsersAPI:  %w", err)
 	}
 	api.HealthClient = grpc_health_v1.NewHealthClient(api.ClientConn)
-	err := api.HealthCheck()
-	if err != nil {
-		return nil, fmt.Errorf("healthcheck failed %w", err)
-	}
+
 	api.UserServiceClient = proto.NewUserServiceClient(api.ClientConn)
 	return api, nil
 }
