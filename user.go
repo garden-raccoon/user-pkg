@@ -130,7 +130,7 @@ func (api *UsersAPI) HealthCheck() error {
 	api.mu.Lock()
 	defer api.mu.Unlock()
 
-	resp, err := api.HealthClient.Check(ctx, &grpc_health_v1.HealthCheckRequest{Service: "publicrate"})
+	resp, err := api.HealthClient.Check(ctx, &grpc_health_v1.HealthCheckRequest{Service: "userapi"})
 	if err != nil {
 		return fmt.Errorf("healthcheck error: %w", err)
 	}
