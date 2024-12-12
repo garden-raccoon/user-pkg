@@ -28,6 +28,8 @@ type IUserAPI interface {
 	// SignIn is
 	SignIn(email string, password []byte) ([]byte, error)
 
+	HealthCheck() error
+
 	// Close GRPC Api connection
 	Close() error
 }
