@@ -65,6 +65,9 @@ func (api *UsersAPI) initConn(addr string) (err error) {
 	}
 
 	api.ClientConn, err = grpc.Dial(api.addr, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithKeepaliveParams(kacp))
+	if err != nil {
+		return fmt.Errorf("failed to dial: %w", err)
+	}
 	return
 }
 func (api *UsersAPI) CheckAuth(token []byte) (*models.User, error) {
