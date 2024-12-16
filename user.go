@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/garden-raccoon/user-pkg/models"
+	"github.com/gofrs/uuid"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"sync"
@@ -24,6 +25,9 @@ type IUserAPI interface {
 
 	// CheckAuth is
 	CheckAuth(token []byte) (*models.User, error)
+
+	// UserByUUID is
+	UserByUUID(userUUID uuid.UUID) (*models.User, error)
 
 	// SignIn is
 	SignIn(email string, password []byte) ([]byte, error)
@@ -137,4 +141,25 @@ func (api *UsersAPI) HealthCheck() error {
 		return fmt.Errorf("node is %s", errors.New("service is unhealthy"))
 	}
 	return nil
+}
+
+func (api *UsersAPI) UserByUUID(userUUID uuid.UUID) (*models.User, error) {
+	opts := &proto.UserGetter{
+		Getter: &proto.UserGetter_UserUuid{
+			UserUuid: userUUID.Bytes(),
+		},
+	}
+	return api.getUser(opts)
+}
+
+func (api *UsersAPI) getUser(opts *proto.UserGetter) (*models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), api.timeout)
+	defer cancel()
+
+	resp, err := api.UserServiceClient.UserBy(ctx, opts)
+	if err != nil {
+		return nil, fmt.Errorf("userapi request failed: %w", err)
+	}
+
+	return models.UserFromProto(resp), nil
 }
