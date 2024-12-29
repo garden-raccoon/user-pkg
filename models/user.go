@@ -21,6 +21,7 @@ type UpdateUserRequest struct {
 	Email     *string
 	FirstName *string
 	LastName  *string
+	Avatar    *string
 }
 
 // UserFromProto is
@@ -62,7 +63,9 @@ func Proto(u UpdateUserRequest) *proto.UpdateUserRequest {
 	if u.LastName != nil {
 		fields.LastName = *u.LastName
 	}
-
+	if u.Avatar != nil {
+		fields.Avatar = *u.Avatar
+	}
 	return fields
 }
 
@@ -85,6 +88,9 @@ func UpdateUserRequestFromProto(pb *proto.UpdateUserRequest) *UpdateUserRequest 
 
 	if pb.LastName != "" {
 		req.LastName = &pb.LastName
+	}
+	if pb.Avatar != "" {
+		req.Avatar = &pb.Avatar
 	}
 	return req
 }

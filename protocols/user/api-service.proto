@@ -25,6 +25,7 @@ message UpdateUserRequest {
     string  username     = 3;
     string  first_name    = 4;
     string  last_name    = 5;
+    string  avatar      = 6;
 }
 
 // SignUpRequest is
