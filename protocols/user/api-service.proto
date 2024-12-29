@@ -12,11 +12,21 @@ service UserService {
     rpc CheckAuth(TokenRequest) returns(models.User);
     rpc UserBy(UserGetter) returns(models.User);
 
+    rpc UpdateUser(UpdateUserRequest) returns(models.User);
     rpc SignUp(SignUpRequest) returns(TokenResponse);
     // SignInRequest
     rpc SignIn(SignInRequest) returns(TokenResponse);
 
 }
+
+message UpdateUserRequest {
+    bytes   user_uuid        = 1;
+    string  email       = 2;
+    string  username     = 3;
+    string  first_name    = 4;
+    string  last_name    = 5;
+}
+
 // SignUpRequest is
 message SignUpRequest {
     string  email       = 1;

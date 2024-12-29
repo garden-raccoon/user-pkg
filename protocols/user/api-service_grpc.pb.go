@@ -22,6 +22,7 @@ const (
 	UserService_CreateUser_FullMethodName = "/service.UserService/CreateUser"
 	UserService_CheckAuth_FullMethodName  = "/service.UserService/CheckAuth"
 	UserService_UserBy_FullMethodName     = "/service.UserService/UserBy"
+	UserService_UpdateUser_FullMethodName = "/service.UserService/UpdateUser"
 	UserService_SignUp_FullMethodName     = "/service.UserService/SignUp"
 	UserService_SignIn_FullMethodName     = "/service.UserService/SignIn"
 )
@@ -35,6 +36,7 @@ type UserServiceClient interface {
 	CreateUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*UserEmpty, error)
 	CheckAuth(ctx context.Context, in *TokenRequest, opts ...grpc.CallOption) (*User, error)
 	UserBy(ctx context.Context, in *UserGetter, opts ...grpc.CallOption) (*User, error)
+	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*User, error)
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*TokenResponse, error)
 	// SignInRequest
 	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*TokenResponse, error)
@@ -78,6 +80,16 @@ func (c *userServiceClient) UserBy(ctx context.Context, in *UserGetter, opts ...
 	return out, nil
 }
 
+func (c *userServiceClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*User, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(User)
+	err := c.cc.Invoke(ctx, UserService_UpdateUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userServiceClient) SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*TokenResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TokenResponse)
@@ -107,6 +119,7 @@ type UserServiceServer interface {
 	CreateUser(context.Context, *User) (*UserEmpty, error)
 	CheckAuth(context.Context, *TokenRequest) (*User, error)
 	UserBy(context.Context, *UserGetter) (*User, error)
+	UpdateUser(context.Context, *UpdateUserRequest) (*User, error)
 	SignUp(context.Context, *SignUpRequest) (*TokenResponse, error)
 	// SignInRequest
 	SignIn(context.Context, *SignInRequest) (*TokenResponse, error)
@@ -128,6 +141,9 @@ func (UnimplementedUserServiceServer) CheckAuth(context.Context, *TokenRequest) 
 }
 func (UnimplementedUserServiceServer) UserBy(context.Context, *UserGetter) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserBy not implemented")
+}
+func (UnimplementedUserServiceServer) UpdateUser(context.Context, *UpdateUserRequest) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
 func (UnimplementedUserServiceServer) SignUp(context.Context, *SignUpRequest) (*TokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")
@@ -210,6 +226,24 @@ func _UserService_UserBy_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UpdateUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_UpdateUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UpdateUser(ctx, req.(*UpdateUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UserService_SignUp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SignUpRequest)
 	if err := dec(in); err != nil {
@@ -264,6 +298,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UserBy",
 			Handler:    _UserService_UserBy_Handler,
+		},
+		{
+			MethodName: "UpdateUser",
+			Handler:    _UserService_UpdateUser_Handler,
 		},
 		{
 			MethodName: "SignUp",

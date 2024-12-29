@@ -29,6 +29,8 @@ type IUserAPI interface {
 	// UserByUUID is
 	UserByUUID(userUUID uuid.UUID) (*models.User, error)
 
+	UpdateUser(user *models.UpdateUserRequest) (*models.User, error)
+
 	// SignIn is
 	SignIn(email string, password []byte) ([]byte, error)
 
@@ -60,6 +62,18 @@ func New(addr string) (IUserAPI, error) {
 
 	api.UserServiceClient = proto.NewUserServiceClient(api.ClientConn)
 	return api, nil
+}
+
+func (api *UsersAPI) UpdateUser(user *models.UpdateUserRequest) (*models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), api.timeout)
+	defer cancel()
+	protoUser := models.Proto(*user)
+	resp, err := api.UserServiceClient.UpdateUser(ctx, protoUser)
+	if err != nil {
+		return nil, fmt.Errorf("updateUser api request: %w", err)
+	}
+	fmt.Printf("resp is %s \n", resp)
+	return models.UserFromProto(resp), nil
 }
 
 // initConn initialize connection to Grpc servers
